@@ -51,10 +51,11 @@ def main(argv):
     # Build up internal structure of changes(change description, files and jira)
     changes = []
     latestChange = None
-    line = sys.stdin
+    line = sys.stdin    
     for line in sys.stdin:                
+        print(line)
         # Check if git sha, if so create a new Changes object to track those files.
-        match = re.match('^[0-9,a-f]{7}\s', line)
+        match = re.match('^[0-9,a-f]+\s', line)
         line = line.strip('\n')        
         if match:            
             latestChange = Change(line)
@@ -82,7 +83,7 @@ def main(argv):
             change.describe(False)
             jiras =  jiras + (change._jiras)
 
-        print("All Jiras: ", jiras)
+        print("All Jiras: ", set(jiras))
 
 
 
