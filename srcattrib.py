@@ -2,12 +2,21 @@
 import sys
 import re
 import fileinput
+import json
+
+class JiraMatcher:
+    def __init__(self:any, jira_prefix: str):
+        self._jiraprefix = jira_prefix
+
+    def match(self:any, changedesc: str):
+        strMatch = "(" + self._jiraprefix + "-\d*)[,: ]"
+        return re.findall(strMatch, changedesc)
 
 class Change:
-    def __init__(self: any, changedesc: str):
+    def __init__(self: any, jiramatcher: JiraMatcher, changedesc: str):
         self._changedesc = changedesc
         self._files = []
-        self._jiras = re.findall("(JIRA-\d*)[,: ]", changedesc)
+        self._jiras = jiramatcher.match(changedesc)
 
     def add(self:any, filename: str):
         self._files.append(filename)        
@@ -27,23 +36,28 @@ class Change:
             for file in self._files:
                 print(file)
 
-
 # Application folder definition, including dependent folders.
 def get_application_definition():
-    applicationDefinitions =  {
-        'app1' : ['app1', 'lib1'],
-        'app2' : ['app2']
-    }
+    with open("application_def.json", "r") as file:
+        data=file.read()
 
+    applicationDefinitions = json.loads(data)
+    
     return applicationDefinitions
 
 # Use inconjuction with 
 # git show --name-only  9ba7577..33a647b --oneline
 # where the starting sha (which isn't inluded) to the end sha
 def main(argv):
-    # application definition
-    dumpApp = argv[1]    
-    print("Determining changes for", dumpApp,'...')
+    # application definition    
+    dumpApp = argv[1]
+    jiraprefix = "JIRA" ## defautl prefix to find
+    if (len(argv) >= 3):
+        jiraprefix = argv[2]
+
+    print("Determining changes for", dumpApp,'matching Jira tag',jiraprefix,'...')
+
+    jiraMatcher = JiraMatcher(jiraprefix)
 
     # Definition of individual app folders and dependent folders.
     appDefs = get_application_definition()
@@ -52,13 +66,12 @@ def main(argv):
     changes = []
     latestChange = None
     line = sys.stdin    
-    for line in sys.stdin:                
-        print(line)
+    for line in sys.stdin:
         # Check if git sha, if so create a new Changes object to track those files.
         match = re.match('^[0-9,a-f]+\s', line)
         line = line.strip('\n')        
         if match:            
-            latestChange = Change(line)
+            latestChange = Change(jiraMatcher, line)
             changes.append(latestChange)
         else:            
             latestChange.add(line)        
