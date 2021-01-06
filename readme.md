@@ -8,7 +8,7 @@ For example, we may have within a mono repo, app1 and lib1, any changes to lib1 
 git show --name-only  9ba7577..0992e8d --oneline | python3 srcattrib.py app1
 ````
 
-All relevant Jiras will be source from the changes in the description.
+All relevant Jiras will be sourced from the changes in the description.
 
 
 ## Application Definition
@@ -30,6 +30,8 @@ python3 srcattrib.py app1 DEMO
 ```
 
 ## Sample output of script
+
+Note a final list of unique Jira ids will be shown last.
 
 ```
 Determining changes for app1 matching Jira tag JIRA ...
