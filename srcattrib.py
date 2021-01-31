@@ -3,6 +3,7 @@ import sys
 import re
 import fileinput
 import json
+import os
 
 class JiraMatcher:
     def __init__(self:any, jira_prefix: str):
@@ -38,7 +39,9 @@ class Change:
 
 # Application folder definition, including dependent folders.
 def get_application_definition():
-    with open("application_def.json", "r") as file:
+    script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+    application_def_files = script_path + "/application_def.json"
+    with open(application_def_files, "r") as file:
         data=file.read()
 
     applicationDefinitions = json.loads(data)
@@ -48,7 +51,7 @@ def get_application_definition():
 # Use inconjuction with 
 # git show --name-only  9ba7577..33a647b --oneline
 # where the starting sha (which isn't inluded) to the end sha
-def main(argv):
+def main(argv):    
     # application definition    
     dumpApp = argv[1]
     jiraprefix = "JIRA" ## defautl prefix to find
