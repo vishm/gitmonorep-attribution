@@ -25,7 +25,16 @@ class Change:
     def isImpactByChange(self:any, rootFolders: list):
         for folder in rootFolders:
             for file in self._files:
-                if file.startswith(folder):
+                filepath = os.path.dirname(file)
+                filename = os.path.basename(file)
+
+                if len(filename) == 0:
+                    continue
+                
+                if folder == "/" and len(filepath) == 0:
+                    return True
+
+                if filepath.startswith(folder):
                     return True
 
         return False
